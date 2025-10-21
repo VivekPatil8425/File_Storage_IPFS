@@ -1,0 +1,72 @@
+{
+  "name": "ipfs-storage-research",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Decentralized file storage using IPFS and Ethereum blockchain - Research Project",
+  "author": "VivekPatil8425",
+  "scripts": {
+    "start": "craco start",
+    "build": "craco build",
+    "test": "craco test",
+    "eject": "react-scripts eject",
+    "compile": "hardhat compile",
+    "test:contract": "hardhat test",
+    "test:gas": "REPORT_GAS=true hardhat test",
+    "deploy:local": "hardhat run scripts/deploy.js --network localhost",
+    "deploy:goerli": "hardhat run scripts/deploy.js --network goerli",
+    "deploy:sepolia": "hardhat run scripts/deploy.js --network sepolia",
+    "node": "hardhat node",
+    "pin": "node backend/pinService.js",
+    "dev": "concurrently \"npm run node\" \"npm start\"",
+    "verify": "hardhat verify"
+  },
+  "dependencies": {
+    "@headlessui/react": "^2.2.9",
+    "@testing-library/jest-dom": "^5.17.0",
+    "@testing-library/react": "^13.4.0",
+    "@testing-library/user-event": "^13.5.0",
+    "axios": "^1.6.0",
+    "ethers": "^5.7.1",
+    "framer-motion": "^12.23.24",
+    "lucide-react": "^0.546.0",
+    "pinata": "^0.1.10",
+    "qrcode": "^1.5.3",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-dropzone": "^14.3.8",
+    "react-icons": "^5.5.0",
+    "react-scripts": "5.0.1",
+    "tailwindcss": "^4.1.15",
+    "web-vitals": "^2.1.4"
+  },
+  "devDependencies": {
+    "@craco/craco": "^7.1.0",
+    "@nomicfoundation/hardhat-toolbox": "^2.0.0",
+    "@nomiclabs/hardhat-ethers": "^2.2.3",
+    "@nomiclabs/hardhat-etherscan": "^3.1.7",
+    "autoprefixer": "^10.4.21",
+    "chai": "^4.3.10",
+    "concurrently": "^8.2.2",
+    "dotenv": "^16.3.1",
+    "hardhat": "^2.19.0",
+    "postcss": "^8.5.6"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
+}
