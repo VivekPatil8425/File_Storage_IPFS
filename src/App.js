@@ -90,17 +90,22 @@ function App() {
         return;
       }
 
-      // Get file metadata
+      // Get file metadata - returns a struct [cidHash, name, size, timestamp, uploader, pinned]
       const metadata = await contract.getFileMeta(searchCID);
       
+      console.log("Raw metadata from blockchain:", metadata);
+      
+      // Parse struct properly (array indices or named properties)
       const fileData = {
         cid: searchCID,
-        name: metadata.name || 'Unknown',
-        size: metadata.size ? metadata.size.toString() : '0',
-        timestamp: metadata.timestamp ? metadata.timestamp.toNumber() : Math.floor(Date.now() / 1000),
-        uploader: metadata.uploader || 'Unknown',
-        pinned: metadata.pinned || false
+        name: metadata.name || metadata[1] || 'Unknown',
+        size: metadata.size ? metadata.size.toString() : (metadata[2] ? metadata[2].toString() : '0'),
+        timestamp: metadata.timestamp ? metadata.timestamp.toNumber() : (metadata[3] ? metadata[3].toNumber() : Math.floor(Date.now() / 1000)),
+        uploader: metadata.uploader || metadata[4] || 'Unknown',
+        pinned: metadata.pinned !== undefined ? metadata.pinned : (metadata[5] || false)
       };
+
+      console.log("Parsed file data:", fileData);
 
       setSearchResult(fileData);
       showNotification("File found on blockchain!", "success");
@@ -132,7 +137,42 @@ function App() {
       setUploadProgress(60);
 
       if (contract) {
-        // Store metadata on blockchain
+        // Check if file already exists on blockchain
+        const exists = await contract.fileExistsByCID(cid);
+        
+        if (exists) {
+          // File already uploaded - retrieve existing metadata
+          const existingFile = await contract.getFileMeta(cid);
+          const uploadDate = new Date(
+            (existingFile.timestamp || existingFile[3]).toNumber() * 1000
+          ).toLocaleString();
+          
+          setUploadProgress(100);
+          
+          showNotification(
+            `This file already exists on blockchain! Originally uploaded on ${uploadDate}`,
+            "info"
+          );
+          
+          // Add existing file to list (without re-uploading)
+          const fileData = {
+            cid,
+            name: existingFile.name || existingFile[1] || selectedFile.name,
+            size: existingFile.size ? existingFile.size.toString() : (existingFile[2] ? existingFile[2].toString() : selectedFile.size.toString()),
+            uploader: existingFile.uploader || existingFile[4] || account,
+            timestamp: (existingFile.timestamp || existingFile[3]).toNumber(),
+            gasUsed: "0 (already exists)"
+          };
+          
+          // Check if not already in fileList
+          if (!fileList.find(f => f.cid === cid)) {
+            setFileList([...fileList, fileData]);
+          }
+          
+          return; // Don't upload to blockchain again
+        }
+        
+        // File doesn't exist - proceed with blockchain upload
         const tx = await contract.storeFile(cid, selectedFile.name, selectedFile.size);
         setUploadProgress(80);
 
