@@ -90,19 +90,27 @@ function App() {
         return;
       }
 
-      // Get file metadata - returns a struct [cidHash, name, size, timestamp, uploader, pinned]
-      const metadata = await contract.getFileMeta(searchCID);
+      // Get file metadata using hash-based function (which has 'view' modifier)
+      const cidHash = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(searchCID));
+      const metadata = await contract.getFileMetaByHash(cidHash);
       
       console.log("Raw metadata from blockchain:", metadata);
+      console.log("Metadata keys:", Object.keys(metadata));
+      console.log("Metadata[0]:", metadata[0]);
+      console.log("Metadata[1]:", metadata[1]);
+      console.log("Metadata[2]:", metadata[2]);
+      console.log("Metadata[3]:", metadata[3]);
+      console.log("Metadata[4]:", metadata[4]);
+      console.log("Metadata[5]:", metadata[5]);
       
-      // Parse struct properly (array indices or named properties)
+      // Parse struct safely with proper fallbacks
       const fileData = {
         cid: searchCID,
-        name: metadata.name || metadata[1] || 'Unknown',
-        size: metadata.size ? metadata.size.toString() : (metadata[2] ? metadata[2].toString() : '0'),
-        timestamp: metadata.timestamp ? metadata.timestamp.toNumber() : (metadata[3] ? metadata[3].toNumber() : Math.floor(Date.now() / 1000)),
-        uploader: metadata.uploader || metadata[4] || 'Unknown',
-        pinned: metadata.pinned !== undefined ? metadata.pinned : (metadata[5] || false)
+        name: metadata[1] || metadata.name || 'Unknown',
+        size: metadata[2] ? (typeof metadata[2].toString === 'function' ? metadata[2].toString() : String(metadata[2])) : (metadata.size ? metadata.size.toString() : '0'),
+        timestamp: metadata[3] ? (typeof metadata[3].toNumber === 'function' ? metadata[3].toNumber() : Number(metadata[3])) : (metadata.timestamp ? metadata.timestamp.toNumber() : Math.floor(Date.now() / 1000)),
+        uploader: metadata[4] || metadata.uploader || 'Unknown',
+        pinned: metadata[5] !== undefined ? metadata[5] : (metadata.pinned !== undefined ? metadata.pinned : false)
       };
 
       console.log("Parsed file data:", fileData);
@@ -142,34 +150,58 @@ function App() {
         
         if (exists) {
           // File already uploaded - retrieve existing metadata
-          const existingFile = await contract.getFileMeta(cid);
-          const uploadDate = new Date(
-            (existingFile.timestamp || existingFile[3]).toNumber() * 1000
-          ).toLocaleString();
-          
-          setUploadProgress(100);
-          
-          showNotification(
-            `This file already exists on blockchain! Originally uploaded on ${uploadDate}`,
-            "info"
-          );
-          
-          // Add existing file to list (without re-uploading)
-          const fileData = {
-            cid,
-            name: existingFile.name || existingFile[1] || selectedFile.name,
-            size: existingFile.size ? existingFile.size.toString() : (existingFile[2] ? existingFile[2].toString() : selectedFile.size.toString()),
-            uploader: existingFile.uploader || existingFile[4] || account,
-            timestamp: (existingFile.timestamp || existingFile[3]).toNumber(),
-            gasUsed: "0 (already exists)"
-          };
-          
-          // Check if not already in fileList
-          if (!fileList.find(f => f.cid === cid)) {
-            setFileList([...fileList, fileData]);
+          try {
+            const cidHash = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(cid));
+            const existingFile = await contract.getFileMetaByHash(cidHash);
+            console.log("Existing file metadata:", existingFile);
+            
+            // Parse timestamp safely
+            let timestamp;
+            let uploadDate;
+            
+            if (existingFile.timestamp) {
+              timestamp = existingFile.timestamp.toNumber();
+            } else if (existingFile[3]) {
+              timestamp = existingFile[3].toNumber();
+            } else {
+              timestamp = Math.floor(Date.now() / 1000);
+            }
+            
+            uploadDate = new Date(timestamp * 1000).toLocaleString();
+            
+            setUploadProgress(100);
+            
+            showNotification(
+              `This file already exists on blockchain! Originally uploaded on ${uploadDate}`,
+              "info"
+            );
+            
+            // Add existing file to list (without re-uploading)
+            const fileData = {
+              cid,
+              name: existingFile.name || existingFile[1] || selectedFile.name,
+              size: existingFile.size ? existingFile.size.toString() : (existingFile[2] ? existingFile[2].toString() : selectedFile.size.toString()),
+              uploader: existingFile.uploader || existingFile[4] || account,
+              timestamp: timestamp,
+              gasUsed: "0 (already exists)"
+            };
+            
+            // Check if not already in fileList
+            if (!fileList.find(f => f.cid === cid)) {
+              setFileList([...fileList, fileData]);
+            }
+            
+            return; // Don't upload to blockchain again
+          } catch (metaError) {
+            console.error("Error reading existing file metadata:", metaError);
+            // If we can't read metadata but file exists, just show simple message
+            setUploadProgress(100);
+            showNotification(
+              "This file already exists on blockchain! Skipping duplicate upload.",
+              "info"
+            );
+            return;
           }
-          
-          return; // Don't upload to blockchain again
         }
         
         // File doesn't exist - proceed with blockchain upload
