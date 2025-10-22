@@ -418,10 +418,9 @@ body {
   font-family: 'Courier New', monospace;
   font-size: 0.85rem;
   flex: 1;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  overflow-wrap: break-word;
   word-break: break-all;
+  max-width: 100%;
 }
 
 .file-actions {

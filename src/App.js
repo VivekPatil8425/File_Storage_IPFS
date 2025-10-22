@@ -19,9 +19,12 @@ function App() {
   const [account, setAccount] = useState("");
   const [contract, setContract] = useState(null);
   const [notification, setNotification] = useState({ show: false, message: "", type: "" });
+  const [searchCID, setSearchCID] = useState("");
+  const [searchResult, setSearchResult] = useState(null);
 
   useEffect(() => {
     connectWallet();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const connectWallet = async () => {
@@ -69,6 +72,45 @@ function App() {
     setTimeout(() => setNotification({ show: false, message: "", type: "" }), 3000);
   };
 
+  const searchByCID = async () => {
+    if (!searchCID.trim()) {
+      showNotification("Please enter a CID", "error");
+      return;
+    }
+
+    try {
+      showNotification("Searching for file on blockchain...", "info");
+
+      // Check if file exists
+      const exists = await contract.fileExistsByCID(searchCID);
+      
+      if (!exists) {
+        showNotification("File not found on blockchain", "error");
+        setSearchResult(null);
+        return;
+      }
+
+      // Get file metadata
+      const metadata = await contract.getFileMeta(searchCID);
+      
+      const fileData = {
+        cid: searchCID,
+        name: metadata.name || 'Unknown',
+        size: metadata.size ? metadata.size.toString() : '0',
+        timestamp: metadata.timestamp ? metadata.timestamp.toNumber() : Math.floor(Date.now() / 1000),
+        uploader: metadata.uploader || 'Unknown',
+        pinned: metadata.pinned || false
+      };
+
+      setSearchResult(fileData);
+      showNotification("File found on blockchain!", "success");
+    } catch (error) {
+      console.error("Search failed:", error);
+      showNotification("Search failed: " + error.message, "error");
+      setSearchResult(null);
+    }
+  };
+
   const changeHandler = (event) => {
     setSelectedFile(event.target.files[0]);
   };
@@ -108,7 +150,7 @@ function App() {
           size: selectedFile.size,
           gasUsed,
           uploader: account,
-          timestamp: new Date().toISOString(),
+          timestamp: Math.floor(Date.now() / 1000),
         };
         setFileList([...fileList, newFile]);
 
@@ -160,6 +202,21 @@ function App() {
   const clearFile = () => {
     setSelectedFile(null);
     setIpfsHash("");
+  };
+
+  const openAllFiles = () => {
+    if (fileList.length === 0) {
+      showNotification("No files to open", "info");
+      return;
+    }
+    
+    fileList.forEach((file, index) => {
+      setTimeout(() => {
+        window.open(`https://ipfs.io/ipfs/${file.cid}`, '_blank');
+      }, index * 500); // Delay to avoid popup blocker
+    });
+    
+    showNotification(`Opening ${fileList.length} file(s) in new tabs`, "success");
   };
 
   return (
@@ -395,13 +452,122 @@ function App() {
           )}
         </div>
 
+        {/* CID Search Section */}
+        <div className="glass-card upload-section animate-fade-in">
+          <div className="section-header">
+            <h2 className="gradient-text">🔍 Find File by CID</h2>
+            <p>Have a CID? Paste it here to view file details</p>
+          </div>
+
+          <div style={{ display: 'flex', gap: '1rem' }}>
+            <input
+              type="text"
+              placeholder="Paste IPFS CID here (e.g., QmX...)"
+              value={searchCID}
+              onChange={(e) => setSearchCID(e.target.value)}
+              onKeyPress={(e) => e.key === 'Enter' && contract && searchCID.trim() && searchByCID()}
+              style={{
+                flex: 1,
+                padding: '1rem',
+                background: 'rgba(255, 255, 255, 0.1)',
+                border: '1px solid rgba(255, 255, 255, 0.2)',
+                borderRadius: '8px',
+                color: 'white',
+                fontSize: '0.95rem',
+                fontFamily: 'monospace'
+              }}
+              disabled={!contract}
+            />
+            <button 
+              onClick={searchByCID}
+              className="cyber-button"
+              style={{ padding: '1rem 2rem', fontSize: '1rem' }}
+              disabled={!contract || !searchCID.trim()}
+            >
+              🔍 Find
+            </button>
+          </div>
+
+          {/* Search Result */}
+          {searchResult && (
+            <div className="file-card glass-card animate-fade-in" style={{ marginTop: '1.5rem' }}>
+              <div className="file-card-header">
+                <div className="file-card-info">
+                  <div className="file-card-icon">📄</div>
+                  <div className="file-card-meta">
+                    <h3>{searchResult.name}</h3>
+                    <p>{(searchResult.size / 1024).toFixed(2)} KB</p>
+                  </div>
+                </div>
+                {searchResult.pinned && (
+                  <div className="gas-badge" style={{ background: 'rgba(16, 185, 129, 0.2)', border: '1px solid var(--neon-green)' }}>
+                    📌 Pinned
+                  </div>
+                )}
+              </div>
+
+              <div className="file-details">
+                <div className="detail-row">
+                  <span className="detail-label">CID:</span>
+                  <div className="detail-value">{searchResult.cid}</div>
+                  <button 
+                    onClick={() => copyCID(searchResult.cid)}
+                    style={{ background: 'none', border: 'none', color: '#9ca3af', cursor: 'pointer', padding: '0.25rem' }}>
+                    📋
+                  </button>
+                </div>
+                <div className="detail-row">
+                  <span className="detail-label">Uploaded:</span>
+                  <span>{new Date(searchResult.timestamp * 1000).toLocaleString()}</span>
+                </div>
+                <div className="detail-row">
+                  <span className="detail-label">By:</span>
+                  <div className="detail-value">
+                    {searchResult.uploader?.substring(0, 6)}...{searchResult.uploader?.substring(38)}
+                  </div>
+                </div>
+              </div>
+
+              <div className="file-actions">
+                <button 
+                  onClick={() => handleRetrieve(searchResult.cid)}
+                  className="action-btn primary"
+                >
+                  👁️ View File
+                </button>
+                <button 
+                  onClick={() => window.open(`https://ipfs.io/ipfs/${searchResult.cid}`, '_blank')}
+                  className="action-btn"
+                >
+                  🔗 Open in Gateway
+                </button>
+              </div>
+
+              <div className="verification-badge">
+                <div className="verification-dot"></div>
+                <span>Verified on Blockchain</span>
+              </div>
+            </div>
+          )}
+        </div>
+
         {/* Files Dashboard */}
         {fileList.length > 0 && (
           <div className="glass-card upload-section animate-fade-in">
-            <div className="section-header">
-              <h2 className="gradient-text">📊 Your Files Dashboard</h2>
-              <p>Manage your uploaded files stored on IPFS and verified on blockchain</p>
+            <div className="section-header" style={{ marginBottom: '1rem' }}>
+              <div>
+                <h2 className="gradient-text">📊 Your Files Dashboard</h2>
+                <p>Manage your uploaded files stored on IPFS and verified on blockchain</p>
+              </div>
             </div>
+
+            <button 
+              onClick={openAllFiles}
+              className="cyber-button"
+              style={{ width: '100%', marginBottom: '1.5rem', padding: '0.875rem', fontSize: '1rem' }}
+            >
+              🚀 Open All Files in New Tabs ({fileList.length})
+            </button>
 
             <div className="files-grid">
               {fileList.map((file, index) => (
@@ -431,7 +597,7 @@ function App() {
                     </div>
                     <div className="detail-row">
                       <span className="detail-label">Uploaded:</span>
-                      <span>{new Date(file.timestamp * 1000).toLocaleDateString()}</span>
+                      <span>{new Date(file.timestamp * 1000).toLocaleString()}</span>
                     </div>
                     <div className="detail-row">
                       <span className="detail-label">By:</span>
