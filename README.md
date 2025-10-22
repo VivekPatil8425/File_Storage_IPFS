@@ -168,11 +168,25 @@ const blob = await response.blob();
 **Issue**: IPFS gateway timeout
 **Solution**: Try alternative gateways in `.env`
 
+## 🌐 Live Demo
+
+**Access the live application:**
+```
+https://VivekPatil8425.github.io/File_Storage_IPFS
+```
+
+**Features:**
+- Upload files to IPFS network
+- Store metadata on Ethereum blockchain
+- Retrieve files with blockchain verification
+- View uploaded files with CID support
+
 ## 📄 Research Documentation
 
 - **Research Report**: See `research/Research-Report-IPFS-Blockchain.pdf`
 - **Presentation Slides**: See `research/Presentation-Slides.md`
 - **Complete Guide**: See this README
+- **Demo Guides**: See `DEMO_COMPARISON.md`, `TEACHER_DEMO_SCRIPT.md`, `VISUAL_EXPLANATION.md`
 
 ## 📞 Contact
 
