@@ -708,7 +708,7 @@ function App() {
       {/* Footer */}
       <footer className="modern-footer">
         <div className="footer-content">
-          <p>Built with ❤️ for decentralized storage research</p>
+          <p>Built for decentralized storage</p>
           <a href="https://github.com" target="_blank" rel="noopener noreferrer" className="github-link">
             <span>🐙</span>
             <span>View on GitHub</span>
