@@ -10,7 +10,7 @@
   }
   
   body {
-    @apply bg-cyber-dark text-white font-cyber antialiased;
+    @apply bg-white text-gray-900 font-cyber antialiased;
     margin: 0;
     overflow-x: hidden;
   }

@@ -19,19 +19,19 @@
 
 body {
   font-family: 'Inter', system-ui, sans-serif;
-  background: linear-gradient(135deg, var(--cyber-dark) 0%, var(--cyber-darker) 100%);
-  color: white;
+  background: #ffffff;
+  color: #111827;
   min-height: 100vh;
   overflow-x: hidden;
 }
 
 /* Glass Card Effect */
 .glass-card {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.03);
   backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(0, 0, 0, 0.08);
   border-radius: 16px;
-  box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
+  box-shadow: 0 8px 32px rgba(17, 24, 39, 0.05);
 }
 
 /* Gradient Text */
@@ -86,7 +86,7 @@ body {
 /* App Container */
 .modern-app {
   min-height: 100vh;
-  background: linear-gradient(135deg, var(--cyber-dark) 0%, var(--cyber-darker) 100%);
+  background: linear-gradient(135deg, #ffffff 0%, #f6f7fb 100%);
   position: relative;
   overflow-x: hidden;
 }

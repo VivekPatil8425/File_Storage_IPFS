@@ -1,3 +1,4 @@
+require("dotenv").config();
 const { ethers } = require("ethers");
 const fs = require("fs");
 
@@ -6,7 +7,10 @@ async function main() {
 
   // Use direct ethers connection
   const provider = new ethers.providers.JsonRpcProvider("https://rpc.sepolia.org");
-  const privateKey = process.env.PRIVATE_KEY || "873ffd42f790a5b6585202fb7fa36a321ea37842e37573e94f7ea7fca601ab39";
+  const privateKey = process.env.PRIVATE_KEY;
+  if (!privateKey) {
+    throw new Error("PRIVATE_KEY is not set. Create a .env file with PRIVATE_KEY=your_key and never commit it.");
+  }
   const wallet = new ethers.Wallet(privateKey, provider);
 
   console.log("Deploying with account:", wallet.address);
