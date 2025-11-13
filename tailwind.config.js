@@ -24,7 +24,7 @@ module.exports = {
           'pink': '#ec4899',
           'green': '#10b981',
         },
-        'pearl': '#F8F6F0'
+        'pearl': '#D6D8D8'
       },
       backgroundImage: {
         'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
