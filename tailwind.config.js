@@ -7,7 +7,6 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        // Cyberpunk color palette
         'cyber': {
           'dark': '#0a0a0f',
           'darker': '#050507',
@@ -24,7 +23,8 @@ module.exports = {
           'cyan': '#06b6d4',
           'pink': '#ec4899',
           'green': '#10b981',
-        }
+        },
+        'pearl': '#F8F6F0'
       },
       backgroundImage: {
         'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
