@@ -103,12 +103,12 @@ const FileCard = ({ file, index, onRetrieve }) => {
         <div className="flex items-center space-x-2 text-sm">
           <Hash className="w-4 h-4 text-gray-400" />
           <span className="text-gray-400">CID:</span>
-          <code className="bg-white/10 px-2 py-1 rounded text-xs font-mono flex-1 truncate">
+          <code className="bg-[rgba(255,255,255,0.03)] px-2 py-1 rounded text-xs font-mono flex-1 truncate">
             {file.cid}
           </code>
           <motion.button
             onClick={() => copyToClipboard(file.cid)}
-            className="p-1 hover:bg-white/10 rounded transition-colors"
+            className="p-1 hover:bg-[rgba(255,255,255,0.04)] rounded transition-colors"
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
           >
@@ -129,7 +129,7 @@ const FileCard = ({ file, index, onRetrieve }) => {
         <div className="flex items-center space-x-2 text-sm">
           <User className="w-4 h-4 text-gray-400" />
           <span className="text-gray-400">By:</span>
-          <code className="bg-white/10 px-2 py-1 rounded text-xs font-mono">
+          <code className="bg-[rgba(255,255,255,0.03)] px-2 py-1 rounded text-xs font-mono">
             {file.uploader?.substring(0, 6)}...{file.uploader?.substring(38)}
           </code>
         </div>
@@ -149,7 +149,7 @@ const FileCard = ({ file, index, onRetrieve }) => {
 
         <motion.button
           onClick={() => window.open(`https://ipfs.io/ipfs/${file.cid}`, '_blank')}
-          className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg transition-colors flex items-center space-x-2 text-sm"
+          className="px-4 py-2 bg-[rgba(255,255,255,0.03)] hover:bg-[rgba(255,255,255,0.04)] rounded-lg transition-colors flex items-center space-x-2 text-sm"
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
         >

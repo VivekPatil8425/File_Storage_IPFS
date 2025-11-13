@@ -92,13 +92,13 @@ const WalletCard = ({ account, onDisconnect }) => {
             </div>
             
             <div className="flex items-center space-x-2">
-              <code className="text-xs bg-white/10 px-2 py-1 rounded font-mono">
+              <code className="text-xs bg-[rgba(255,255,255,0.03)] px-2 py-1 rounded font-mono">
                 {formatAddress(account)}
               </code>
               
               <motion.button
                 onClick={copyAddress}
-                className="p-1 hover:bg-white/10 rounded transition-colors"
+                className="p-1 hover:bg-[rgba(255,255,255,0.04)] rounded transition-colors"
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
               >

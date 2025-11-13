@@ -59,7 +59,7 @@ const NotificationToast = ({ notification, onClose }) => {
               
               <motion.button
                 onClick={onClose}
-                className="p-1 hover:bg-white/10 rounded transition-colors"
+                className="p-1 hover:bg-[rgba(255,255,255,0.04)] rounded transition-colors"
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
               >
@@ -69,7 +69,7 @@ const NotificationToast = ({ notification, onClose }) => {
 
             {/* Progress bar for auto-dismiss */}
             <motion.div
-              className="mt-3 h-1 bg-white/20 rounded-full overflow-hidden"
+              className="mt-3 h-1 bg-[rgba(255,255,255,0.10)] rounded-full overflow-hidden"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.2 }}
